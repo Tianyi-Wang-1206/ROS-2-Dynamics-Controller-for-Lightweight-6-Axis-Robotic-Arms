@@ -1,0 +1,3 @@
+mujoco-3.9.0/** linguist-vendored
+src/trac_ik/** linguist-vendored
+src/lite6_moveit_config/** linguist-generated
