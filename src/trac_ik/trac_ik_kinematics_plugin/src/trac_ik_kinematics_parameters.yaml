@@ -1,0 +1,24 @@
+trac_ik_kinematics:
+  epsilon: {
+    type: double,
+    default_value: 0.00001,
+    description: "Epsilon. Default is 1e-5",
+    validation: {
+      gt<>: [ 0.0 ]
+    }
+  }
+
+  position_only_ik: {
+    type: bool,
+    default_value: false,
+    description: "position_only_ik overrules orientation_vs_position. If true, sets orientation_vs_position weight to 0.0"
+  }
+
+  solve_type: {
+    type: string,
+    default_value: "Distance",
+    description: "Solve Type. Options: Speed, Distance, Manipulation1, Manipulation2",
+    validation: {
+      one_of<>: [["Speed", "Distance", "Manipulation1", "Manipulation2"]]
+    }
+  }

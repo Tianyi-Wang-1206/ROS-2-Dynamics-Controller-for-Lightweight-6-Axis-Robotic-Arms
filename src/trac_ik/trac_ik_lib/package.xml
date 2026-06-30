@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>trac_ik_lib</name> 
+  <version>2.0.0</version>
+  <description>
+    TRAC-IK is a faster, significantly more reliable drop-in replacement for
+    KDL's pseudoinverse Jacobian solver.
+
+    The TRAC-IK library has a very similar API to KDL's IK solver calls,
+    except that the user passes a maximum time instead of a maximum number of
+    search iterations.  Additionally, TRAC-IK allows for error tolerances to
+    be set independently for each Cartesian dimension (x,y,z,roll,pitch.yaw).
+  </description>
+  <author>Patrick Beeson</author>
+  <author>Barrett Ames</author>
+  <maintainer email="robotics@traclabs.com">TRACLabs Robotics</maintainer>
+
+  <license>BSD</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+
+  <depend>eigen</depend>
+  <depend>kdl_parser</depend>
+  <depend>libnlopt-dev</depend>
+  <depend>libnlopt-cxx-dev</depend>
+  <depend>pkg-config</depend>
+  <depend>urdf</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+  
+</package>

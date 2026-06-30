@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>trac_ik_kinematics_plugin</name>
+  <version>2.0.0</version>
+  <description>A MoveIt! Kinematics plugin using TRAC-IK</description>
+  <author>Patrick Beeson</author>
+  <maintainer email="robotics@traclabs.com">TRACLabs Robotics</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>moveit_core</depend>
+  <depend>pluginlib</depend>
+  <depend>class_loader</depend>
+  <depend>generate_parameter_library</depend>
+  <depend>urdf</depend>
+  <depend>tf2_kdl</depend>
+  <depend>trac_ik_lib</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <moveit_core plugin="${prefix}/trac_ik_kinematics_description.xml"/>
+  </export>
+</package>
