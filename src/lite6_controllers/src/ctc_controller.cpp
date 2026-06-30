@@ -84,7 +84,7 @@ controller_interface::CallbackReturn Lite6CTCController::on_configure(const rclc
   auto fc_v = get_node()->get_parameter("friction_c_nominal").as_double_array();
   auto arm_v = get_node()->get_parameter("armature").as_double_array();
   auto effort_limit_v = get_node()->get_parameter("max_effort").as_double_array();
-  auto estop_decel_v = get_node()->get_parameter("estop_decel").as_double_array(); // MODIFIED
+  auto estop_decel_v = get_node()->get_parameter("estop_decel").as_double_array();
 
   Kp_ = Eigen::MatrixXd::Zero(n, n);
   Kv_ = Eigen::MatrixXd::Zero(n, n);
