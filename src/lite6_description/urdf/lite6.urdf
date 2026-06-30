@@ -1,0 +1,246 @@
+<?xml version="1.0" ?>
+<robot name="lite6">
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <material name="Silver">
+    <color rgba="0.753 0.753 0.753 1.0"/>
+  </material>
+
+  <!-- ==================== LINKS & JOINTS ==================== -->
+  <link name="link_base">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.00829545 3.26357e-05 0.0631195"/>
+      <mass value="1.65394"/>
+      <inertia ixx="0.0" ixy="0" ixz="0" iyy="0.0" iyz="0" izz="0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link_base.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link_base.stl"/></geometry>
+    </collision>
+  </link>
+
+  <link name="link1">
+    <inertial>
+      <origin rpy="1.8374 -0.0084 -0.1416" xyz="-0.00036 0.04195 -0.0025"/>
+      <mass value="1.411"/>
+      <inertia ixx="0.00145276" ixy="0" ixz="0" iyy="0.00135275" iyz="0" izz="0.000853355"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link1.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link1.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint1" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.2435"/>
+    <parent link="link_base"/>
+    <child link="link1"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="50.0" lower="-6.28319" upper="6.28319" velocity="3.14"/>
+    <dynamics damping="1.0" friction="1.5"/>  
+  </joint>
+
+  <link name="link2">
+    <inertial>
+      <origin rpy="1.5704 -0.0003 1.5713" xyz="0.179 0 0.0584"/>
+      <mass value="1.34"/>
+      <inertia ixx="0.00560971" ixy="0" ixz="0" iyy="0.0052152" iyz="0" izz="0.00122018"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link2.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link2.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint2" type="revolute">
+    <origin rpy="1.5708 -1.5708 3.1416" xyz="0 0 0"/>
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="50.0" lower="-2.61799" upper="2.61799" velocity="3.14"/>
+    <dynamics damping="1.0" friction="1.5"/>
+  </joint>
+
+  <link name="link3">
+    <inertial>
+      <origin rpy="2.4542 -0.7303 2.7663" xyz="0.072 -0.0357 -0.001"/>
+      <mass value="0.953"/>
+      <inertia ixx="0.0018521" ixy="0" ixz="0" iyy="0.00175546" iyz="0" izz="0.000703807"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link3.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link3.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint3" type="revolute">
+    <origin rpy="-3.1416 0 1.5708" xyz="0.2002 0 0"/>
+    <parent link="link2"/>
+    <child link="link3"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="32.0" lower="0.0" upper="4.97419" velocity="3.14"/>
+    <dynamics damping="0.5" friction="1.0"/>
+  </joint>
+
+  <link name="link4">
+    <inertial>
+      <origin rpy="0.4465 0.0053 -0.0042" xyz="-0.002 -0.0285 -0.0813"/>
+      <mass value="1.284"/>
+      <inertia ixx="0.00370503" ixy="0" ixz="0" iyy="0.00349091" iyz="0" izz="0.00109586"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link4.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link4.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint4" type="revolute">
+    <origin rpy="1.5708 0 0" xyz="0.087 -0.22761 0"/>
+    <parent link="link3"/>
+    <child link="link4"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="32.0" lower="-6.28319" upper="6.28319" velocity="3.14"/>
+    <dynamics damping="0.2" friction="0.5"/>
+  </joint>
+
+  <link name="link5">
+    <inertial>
+      <origin rpy="1.5471 -0.1481 -0.0019" xyz="0 0.01 0.0019"/>
+      <mass value="0.804"/>
+      <inertia ixx="0.000567553" ixy="0" ixz="0" iyy="0.000529266" iyz="0" izz="0.000507681"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link5.stl"/></geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link5.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint5" type="revolute">
+    <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    <parent link="link4"/>
+    <child link="link5"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="32.0" lower="-1.62316" upper="1.62316" velocity="3.14"/>
+    <dynamics damping="0.1" friction="0.2"/>
+  </joint>
+
+  <link name="link6">
+    <inertial>
+      <origin rpy="1.5731 -0.1264 -3.0376" xyz="0 -0.00194 -0.0102"/>
+      <mass value="0.13"/>
+      <inertia ixx="0.000148148" ixy="0" ixz="0" iyy="8.57757e-05" iyz="0" izz="7.71412e-05"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/visual/link6.stl"/></geometry>
+      <material name="Silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="package://lite6_description/assets/collision/link6.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="joint6" type="revolute">
+    <origin rpy="-1.5708 0 0" xyz="0 0.0625 0"/>
+    <parent link="link5"/>
+    <child link="link6"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="20.0" lower="-6.28319" upper="6.28319" velocity="3.14"/>
+    <dynamics damping="0.05" friction="0.1"/>
+  </joint>
+
+  <link name="link_eef"/>
+  <joint name="joint_eef" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="link6"/>
+    <child link="link_eef"/>
+  </joint>
+
+  <!-- ==================== ROS 2 CONTROL CONFIGURATION ==================== -->
+  <ros2_control name="Lite6MuJoCo" type="system">
+    <hardware>
+      <plugin>lite6_hardware/Lite6MujocoSystem</plugin>
+    </hardware>
+
+    <!-- Joint 1 -->
+    <joint name="joint1">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <!-- Joint 2 -->
+    <joint name="joint2">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <!-- Joint 3 -->
+    <joint name="joint3">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <!-- Joint 4 -->
+    <joint name="joint4">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <!-- Joint 5 -->
+    <joint name="joint5">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <!-- Joint 6 -->
+    <joint name="joint6">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+  </ros2_control>
+</robot>

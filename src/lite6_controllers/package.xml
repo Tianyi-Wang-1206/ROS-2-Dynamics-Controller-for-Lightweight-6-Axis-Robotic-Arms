@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lite6_controllers</name>
+  <version>0.0.0</version>
+  <description>Computed Torque Controller for Lite6</description>
+  <maintainer email="your_email@example.com">tianyi</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>realtime_tools</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>pinocchio</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <controller_interface plugin="${prefix}/lite6_controllers.xml"/>
+  </export>
+</package>

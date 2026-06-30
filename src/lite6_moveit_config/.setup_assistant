@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: lite6_description
+    relative_path: urdf/lite6.urdf
+  srdf:
+    relative_path: config/lite6.srdf
+  package_settings:
+    author_name: todo
+    author_email: todo@todo.com
+    generated_timestamp: 1781695827
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

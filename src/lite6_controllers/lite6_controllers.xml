@@ -1,0 +1,9 @@
+<library path="lite6_controllers">
+  <class name="lite6_controllers/Lite6CTCController"
+         type="lite6_controllers::Lite6CTCController"
+         base_class_type="controller_interface::ChainableControllerInterface">
+    <description>
+      Computed Torque Controller using Pinocchio for Lite6.
+    </description>
+  </class>
+</library>

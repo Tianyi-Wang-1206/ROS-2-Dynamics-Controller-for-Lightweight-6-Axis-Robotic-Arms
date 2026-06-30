@@ -1,0 +1,9 @@
+<library path="lite6_hardware">
+  <class name="lite6_hardware/Lite6MujocoSystem"
+         type="lite6_hardware::Lite6MujocoSystem"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Headless MuJoCo Hardware Interface for Lite6.
+    </description>
+  </class>
+</library>
