@@ -21,12 +21,12 @@ For detailed mathematical derivations, please refer to [Theory.md](Theory.md).
 
 
 ## 📑 Table of Contents
-1. [System Architecture]
-2. [Core Features & Demonstrations]
-3. [Quick Start & Reproduction Guide]
-4. [Future Work]
-5. [Acknowledgements]
-6. [Disclaimer]
+1. [System Architecture](#-system-architecture)
+2. [Core Features & Demonstrations](#-core-features--demonstrations)
+3. [Quick Start & Reproduction Guide](#-quick-start--reproduction-guide)
+4. [Future Work](#-future-work)
+5. [Acknowledgements](#-acknowledgements)
+6. [Disclaimer](#-disclaimer)
 
 
 ## 🧠 System Architecture
