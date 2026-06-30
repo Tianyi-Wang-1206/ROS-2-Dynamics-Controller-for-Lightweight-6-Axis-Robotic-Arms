@@ -15,61 +15,150 @@ For detailed mathematical derivations, please refer to [Theory.md](Theory.md).
 
 > ⚠️ **Notice:** The robot model used in this simulation is the **UFactory Lite6**, sourced from the official [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie). This repository is an independent open-source project designed for research and educational purposes.
 
-*(📸 **Visual Teaser:** Insert a high-quality GIF here showing the PyQt5 GUI on the left and the robot smoothly moving in RViz on the right).*
+<p align="center">
+  <img src="media/demo_PTP.gif" width="1080" alt="PTP Motion and GUI Overview"/>
+</p>
 
 
 ## 📑 Table of Contents
-1. [System Architecture](#system-architecture)
-2. [Core Features & Demonstrations](#core-features--demonstrations)
-3. [Technical Highlights](#technical-highlights)
-4. [Installation & Setup](#installation--setup)
-5. [Usage](#usage)
-6. [Roadmap & Future Work](#roadmap--future-work)
-7. [Contributing & License](#contributing--license)
+1. [System Architecture]
+2. [Core Features & Demonstrations]
+3. [Quick Start & Reproduction Guide]
+4. [Future Work]
+5. [Acknowledgements]
+6. [Disclaimer]
 
 
 ## 🧠 System Architecture
-*(📈 **Flowchart:** Insert a block diagram here (Draw.io or Mermaid.js). It should clearly show the data flow and the **operating frequencies** of each block.)*
+The system's architecture is illustrated in the diagram below:
 
-*   **UI Layer (Asynchronous):** PyQt5 HMI safely threaded via signals/slots.
-*   **Planning Layer (~100Hz):** MoveIt2 + **TRAC-IK** (Inverse Kinematics) + **Pilz Industrial Motion Planner** & Default **PTP Planner**.
-*   **Controller Chaining (1000Hz Hard Real-Time):**
-    *   `JointTrajectoryController` (JTC): Demoted to act purely as a high-order spline interpolator.
-    *   `Lite6CTCController` (CTC): Custom `ChainableControllerInterface` utilizing **Pinocchio** for Rigid Body Dynamics ($M\ddot{q} + C\dot{q} + G$).
-*   **Hardware Interface / Physics (1000Hz):** **Headless MuJoCo** running in pure **Effort Mode** (bypassing default PID), paired with **RViz** for visualization. Simulates realistic **Dry/Viscous Friction** and **Motor Armature** (Rotor Inertia).
+```mermaid
+graph TB
+    %% Style Definitions
+    classDef PyQt fill:#34495e,stroke:#2c3e50,stroke-width:2px,color:#fff;
+    classDef MoveIt fill:#2980b9,stroke:#1f3a52,stroke-width:2px,color:#fff;
+    classDef R2C fill:#8e44ad,stroke:#5b2c6f,stroke-width:2px,color:#fff;
+    classDef Custom fill:#d35400,stroke:#a04000,stroke-width:2px,color:#fff;
+    classDef Physics fill:#27ae60,stroke:#1e8449,stroke-width:2px,color:#fff;
+    classDef Util fill:#7f8c8d,stroke:#5d6d7e,stroke-width:2px,color:#fff;
+
+    %% Subgraph: PyQt5 HMI Layer (Asynchronous / Non-Real-Time)
+    subgraph Sub_GUI [PyQt5 HMI Layer — Async / ~20Hz]
+        UI[PyQt5 GUI Window]:::PyQt
+        Worker[ROS2Worker Thread]:::PyQt
+        SysID[SysIdEngine]:::PyQt
+        UI <-->|Signals/Slots<br/>Bidirectional Sync| Worker
+        Worker <-->|Least Squares Fitting| SysID
+    end
+
+    %% Subgraph: MoveIt2 Planning Space (~50Hz On-Demand)
+    subgraph Sub_MoveIt [MoveIt2 Planning Space — ~50Hz]
+        MGroup[MoveGroup Node]:::MoveIt
+        TracIK[TRAC-IK Kinematics Solver]:::MoveIt
+        Pilz[Pilz Industrial Motion Planner<br/>PTP / LIN / CIRC]:::MoveIt
+        MGroup <-->|Plugin API| TracIK
+        MGroup <-->|Plugin API| Pilz
+    end
+
+    %% Subgraph: Hard Real-Time ROS 2 Control Loop (1000Hz)
+    subgraph Sub_R2C [ROS 2 Control Manager — Hard Real-Time 1000Hz Loop]
+        JTC[JointTrajectoryController<br/>Upstream Interpolator]:::R2C
+        CTC[Lite6CTCController<br/>Downstream CTC Controller]:::Custom
+        JSB[JointStateBroadcaster]:::R2C
+        KF[1D Kalman Filter<br/>State Observer]:::Custom
+        Pinocchio[Pinocchio RBD Engine<br/>RNEA Solver]:::Custom
+        
+        %% Chaining Mechanism
+        JTC ==>|Memory Pointer Sharing<br/>q_d, dq_d, ddq_d| CTC
+        CTC <-->|computes M, C, G| Pinocchio
+        KF -->|Filtered q, dq| CTC
+    end
+
+    %% Subgraph: MuJoCo Simulation Environment (1000Hz)
+    subgraph Sub_MuJoCo [MuJoCo Simulation Environment — 1000Hz]
+        HW[Lite6MujocoSystem<br/>Hardware Interface]:::Custom
+        Engine[MuJoCo Headless Physics<br/>Effort Mode]:::Physics
+        HW <-->|mj_step / C API| Engine
+    end
+
+    %% Subgraph: Shadow Robot Twin (Visualization Helper)
+    subgraph Sub_Shadow [Shadow Robot Twin — ~200Hz]
+        Tracker[Shadow Tracker Node]:::Util
+        ShadowRSP[Shadow Robot State Publisher]:::Util
+        RViz[RViz2 Visualization]:::Util
+    end
+
+    %% System Connections (Data Flow)
+    Worker -->|Action Goal:<br/>MoveGroup.Action| MGroup
+    MGroup ==>|Action Result:<br/>FollowJointTrajectory| JTC
+    Worker -.->|Software E-Stop<br/>Injects zero-velocity pt| JTC
+    
+    %% CTC Inputs & Outputs
+    HW -->|Hardware State Interface<br/>Raw q_measured| KF
+    HW -->|Hardware State Interface| JSB
+    CTC ==>|Hardware Command Interface<br/>Output Torques tau_cmd| HW
+    
+    %% GUI State Feedback & SysID
+    JSB -.->|Topic /joint_states| Worker
+    Worker -.->|SysID Mode Commands:<br/>Int32 /system_cmd| CTC
+    
+    %% Shadow Robot Flow
+    JTC -.->|Topic /controller_state<br/>Reference q_d| Tracker
+    Tracker -.->|Topic /shadow/joint_states| ShadowRSP
+    ShadowRSP -.->|Shadow TFs| RViz
+    JSB -.->|Main Robot TFs| RViz
+
+    %% Frequencies & Details annotations
+    style Sub_GUI fill:#f4f6f9,stroke:#bdc3c7,stroke-width:2px;
+    style Sub_MoveIt fill:#ebf5fb,stroke:#a9cce3,stroke-width:2px;
+    style Sub_R2C fill:#f5eef8,stroke:#d7bde2,stroke-width:2px;
+    style Sub_MuJoCo fill:#eaf2f8,stroke:#a9dfbf,stroke-width:2px;
+    style Sub_Shadow fill:#f2f4f4,stroke:#ccd1d1,stroke-width:2px;
+```
 
 ## 🎥 Core Features & Demonstrations
 
 ### 1. Industrial Motion Planning (PTP, MoveL, MoveC)
-*(📸 **GIF:** Show the user selecting different modes in the GUI. Show the robot drawing a straight line (MoveL) and a perfect circle (MoveC) in RViz.)*
-*   **PTP (Point-to-Point):** Joint space planning to specific angles (e.g., Home position) or Cartesian poses (MoveP) via TRAC-IK.
-*   **MoveL:** Deterministic linear Cartesian interpolation via the Pilz planner.
-*   **MoveC:** Circular Cartesian interpolation using an auxiliary midpoint frame.
+
+*   **PTP (Point-to-Point):** Joint space planning to specific angles or Cartesian poses (MoveP) via TRAC-IK:
+<p align="center">
+  <img src="media/demo_PTP.gif" width="1080" alt="PTP Motion Planning"/>
+</p>
+
+*   **MoveL:** Deterministic linear Cartesian interpolation via the Pilz planner:
+
+<p align="center">
+  <img src="media/demo_MoveL.gif" width="1080" alt="Linear Interpolation and Planning"/>
+</p>
+
+*   **MoveC:** Circular Cartesian interpolation using an auxiliary midpoint frame:
+
+<p align="center">
+  <img src="media/demo_MoveC.gif" width="1080" alt="Circular Interpolation and Planning"/>
+</p>
 
 ### 2. Automated System Identification
-*(📸 **GIF:** Show the robot performing the Fourier excitation trajectory, followed by the YAML parameters updating in the GUI terminal.)*
 *   Executes bounded Fourier excitation trajectories.
 *   Records $q, \dot{q}, \tau$ and utilizes **Least Squares Optimization** to extract exact **Armature, Viscous Friction, and Coulomb Friction** matrices.
 
+<p align="center">
+  <img src="media/demo_SYSID.gif" width="1080" alt="Automated System Identification"/>
+</p>
+
 ### 3. The "Shadow Robot" Debugging Twin
-*(📸 **GIF:** Show the robot moving. The cyan "Shadow Robot" should lead the movement, and the real robot tracks it tightly).*
 *   A collision-free, cyan-colored digital twin runs alongside the main robot. It perfectly reflects the unperturbed JTC reference trajectory, allowing instant visual verification of tracking error and dynamic deviations.
 
-### 4. Kinematic E-Stop and Fault Recovery
-*(📸 **GIF:** Click the red E-STOP button during a fast movement. Show the robot braking smoothly without jerking, followed by the recovery sequence).*
-*   Hardware-level emergency stop overriding MoveIt.
-*   Generates a safe deceleration profile based on physical kinematic limits rather than blindly setting torque to zero (which causes free-fall).
+<p align="center">
+  <img src="media/demo_shadow_robot.gif" width="1080" alt="Shadow Robot"/>
+</p>
 
-## 🔬 Technical Highlights
+### 4. Software E-Stop and Recovery
+*   Emergency stop overriding MoveIt.
+*   Generates a safe deceleration trajectory based on physical kinematic limits.
 
-*   **Kalman Filter State Observation:** 
-    Instead of relying on noisy raw velocity differentiation, the CTC employs a 1D Kalman Filter per joint. It merges raw encoder positions with predicted accelerations to output zero-lag, noiseless velocity ($\dot{q}$) and position ($q$) estimations.
-*   **Advanced Friction Compensation:** 
-    Directly addresses Stiction and Coulomb friction zero-crossing instability. Implements a smooth `std::tanh` transition curve to prevent chattering when joint velocities approach zero.
-*   **Safe GUI Threading & Precision Syncing:** 
-    The HMI runs a strict isolation pattern. The ROS 2 Executor spins in a background `QThread`, pushing data to the GUI via PyQt Signals. 
-    *   **Precision Logic:** The backend strictly stores 64-bit precision floats for target calculations, while the UI displays user-friendly 2-decimal strings. A bidirectional sync mechanism ensures exact precision is preserved during planning without UI clutter.
-*   **Global Overrides:** Real-time scaling (0-100%) of maximum velocity and acceleration bounds directly from the HMI.
+<p align="center">
+  <img src="media/demo_estop.gif" width="1080" alt="E-Stop"/>
+</p>
 
 ## 🚀 Quick Start & Reproduction Guide
 
@@ -115,21 +204,22 @@ ros2 launch lite6_bringup system_bringup.launch.py
 
 *(Note: If you reboot your computer, you can repeat Step 2 and Step 3 to launch the robot again.  In addition, since the `run_docker.sh` script uses a "shared folder" feature, the `src` folder on your computer is directly linked to the inside of Docker. You **do not** need to rebuild the Docker image every time you change the code.).*
 
-## 🔮 Roadmap & Future Work
+## 🔮 Future Work
 This framework is actively evolving. Upcoming features include:
-- [ ] **End-Effector Integration:** Adding URDF and controller support for parallel jaw grippers.
-- [ ] **Impedance / Admittance Control:** Transitioning from strict position tracking to compliant Cartesian control for physical human-robot interaction and assembly tasks.
-- [ ] **Hardware Deployment:** Swapping the MuJoCo `SystemInterface` with a real EtherCAT driver to control a physical arm.
+- **End-Effector Integration:** Adding URDF and controller support for parallel jaw grippers.
+- **Impedance / Admittance Control:** Transitioning from strict position tracking to compliant Cartesian control for physical human-robot interaction and assembly tasks.
 
 ## 🙏 Acknowledgements
 
-This project stands on the shoulders of giants. I would like to sincerely thank the creators and maintainers of the following open-source projects and organizations:
+I would like to sincerely thank the creators and maintainers of the following open-source projects and organizations:
 
-*   **[MuJoCo (DeepMind)](https://mujoco.org/):** For providing the world's most stable and fastest contact physics engine, and the MuJoCo Menagerie for the high-quality robot models.
-*   **[ROS 2 & ros2_control](https://control.ros.org/):** For the incredible real-time hardware abstraction and controller chaining architecture.
-*   **[Pinocchio (LAAS-CNRS)](https://gepettoweb.laas.fr/articles/pinocchio.html):** For the lightning-fast C++ rigid body dynamics algorithms that make 1000Hz CTC possible.
-*   **[MoveIt 2 & Pilz Planner](https://moveit.ros.org/):** For the robust motion planning and industrial trajectory generation.
-*   **[UFactory](https://www.ufactory.cc/):** For creating the Lite6 robotic arm, which serves as the physical inspiration and digital twin for this control architecture.
+*   **[MuJoCo](https://mujoco.org/)**
+*   **[MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie)**
+*   **[ros2_control](https://control.ros.org/)**
+*   **[Pinocchio](https://stack-of-tasks.github.io/pinocchio/)**
+*   **[MoveIt2](https://moveit.ai/)**
+*   **[Pilz Industrial Motion Planner](https://moveit.picknik.ai/main/doc/how_to_guides/pilz_industrial_motion_planner/pilz_industrial_motion_planner.html)**
+*   **[TRAC-IK](https://traclabs.com/projects/trac-ik/)**
 
 ## ⚖️ Disclaimer
 
