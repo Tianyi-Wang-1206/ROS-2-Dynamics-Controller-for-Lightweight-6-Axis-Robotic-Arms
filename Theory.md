@@ -61,7 +61,8 @@ Where:
 * $C(q, \dot{q})\dot{q} \in \mathbb{R}^n$ represents the Coriolis and centrifugal forces.
 * $G(q) \in \mathbb{R}^n$ is the gravity vector.
 
-### Motor Dynamics and Friction
+**Motor Dynamics and Friction:**
+
 To achieve realistic simulation, we must account for the motor's rotor inertia (amplified by the harmonic drive gear ratio squared) and joint friction:
 
 $$
@@ -74,7 +75,7 @@ $$
 
 Where $I_a$ is the armature inertia, $F_v$ is viscous friction, and $F_c$ is Coulomb (dry) friction. 
 
-### Friction Compensation: Anti-Chattering & Stiction Breakaway
+**Friction Compensation: Anti-Chattering & Stiction Breakaway**
 
 The standard theoretical model for Coulomb (dry) friction is $F_c \text{sgn}(\dot{q})$. However, implementing this directly in a discrete 1000Hz control loop introduces two problems: **Chattering** and **Steady-State Stall (Stiction)**. Our friction compensator overcomes both using a novel error-injected hyperbolic tangent function:
 
@@ -96,8 +97,6 @@ To eliminate this, we base the Coulomb friction calculation not on the noisy act
 *   **Feedforward:** When moving, the expected target velocity $\dot{q}_{target}$ drives the friction compensation seamlessly.
 *   **Stiction Breakaway (The $\lambda e$ term):** When the robot is supposed to be stationary ($\dot{q}_{target} = 0$) but a position error exists ($e \neq 0$), the term $\lambda e$ acts as a fictitious velocity. The scaling factor $\lambda = 5.0$ amplifies this positional error, pushing the $\tanh$ function into its saturation region. 
 *   **The Result:** The controller actively outputs a directional friction-cancellation torque ($\pm F_c$) *in the direction of the error*. This "boost" precisely cancels the mechanical breakaway friction, allowing the small PD torque to pull the robot effortlessly to the exact target. Once the error reaches zero ($e = 0$), the fictitious velocity vanishes, the $\tanh$ evaluates to zero, and the robot rests perfectly stationary.
-
----
 
 ## 3. Computed Torque Control (CTC) Law
 
@@ -125,7 +124,8 @@ $$
 \tau_{cmd} = M(q)a_d + C(q, \dot{q})\dot{q} + G(q) + I_a a_d + \tau_{fric}
 $$
 
-### Error Dynamics Proof
+**Error Dynamics Proof:**
+
 If our dynamic model is perfectly accurate ($\hat{M} = M$, etc.), substituting the control law into the robot's equation of motion yields:
 
 $$
@@ -145,12 +145,13 @@ By choosing strictly positive diagonal gain matrices $K_p$ and $K_v$, the error 
 Parameters such as the mass, inertia, and center of mass of the robot body are known at the time of manufacture; however, parameters like friction and rotor inertia are difficult to measure precisely, necessitating system identification to estimate them. To find the parameters $I_a, F_v, F_c$, we execute a persistent excitation trajectory modeled by a finite Fourier series ($N_f = 7$, base frequency $w = 2\pi f_0$):
 
 $$
-q_i(t) = \sum_{l=1}^{N_f} \left( \frac{a_{i,l}}{w l} \sin(w l t) - \frac{b_{i,l}}{w l} \cos(w l t) \right) + \frac{b_{i,l}}{w l}
+q_i(t) = \sum_{l=1}^{N_f} \left[ \frac{a_{i,l}}{w l} \sin(w l t) - \frac{b_{i,l}}{w l} \cos(w l t) + \frac{b_{i,l}}{w l} \right]
 $$
 
 We impose boundary conditions such that $q(0), \dot{q}(0), \ddot{q}(0) = 0$ to ensure smooth start and stop transitions.
 
-### Linear Regressor Formulation
+**Linear Regressor Formulation:**
+
 The dynamics equation can be rewritten linearly with respect to the unknown parameter vector $\theta$:
 
 $$
@@ -173,23 +174,17 @@ $$
 
 ## 5. Kinematic E-Stop (Deceleration Trajectory)
 
-When a software E-Stop is triggered, zeroing the torque causes the robot to collapse, and zeroing the velocity causes infinite deceleration (jerk), destroying the gearbox.
+When a software E-Stop is triggered, simply zeroing the torque causes the robot to collapse under gravity, while instantly zeroing the velocity causes infinite deceleration (jerk), which can destroy the harmonic drive gearboxes.
 
-Instead, we generate a real-time kinematic deceleration profile bounded by a maximum safe deceleration $a_{max}$ (e.g., $5\times$ the nominal trajectory limits).
+Instead, the controller intercepts the E-Stop signal and generates a real-time kinematic deceleration profile bounded by a maximum safe deceleration limit $a_{max}$ (e.g., $5\times$ the nominal trajectory acceleration limits). 
 
-For a joint moving at velocity $\dot{q}_0$, the time required to stop is:
-
-$$
-t_{stop} = \left| \frac{\dot{q}_0}{a_{max}} \right|
-$$
-
-The command acceleration is set in opposition to the velocity:
+For a joint currently moving at velocity $\dot{q}(k)$, the deceleration command is set in direct opposition to the movement:
 
 $$
-\ddot{q}_{cmd} = -\text{sgn}(\dot{q}_0) a_{max}
+\ddot{q}_{cmd} = -\text{sgn}(\dot{q}(k)) a_{max}
 $$
 
-The discrete position target is updated iteratively during the control loop ($dt=0.001s$) until $\dot{q} = 0$:
+Under normal deceleration, the discrete position and velocity targets are updated iteratively during the control loop ($dt=0.001s$):
 
 $$
 q_{target}(k+1) = q_{target}(k) + \dot{q}(k) dt + \frac{1}{2} \ddot{q}_{cmd} dt^2
@@ -199,4 +194,34 @@ $$
 \dot{q}_{target}(k+1) = \dot{q}(k) + \ddot{q}_{cmd} dt
 $$
 
-This ensures the robot strictly adheres to maximum mechanical stress tolerances during emergency interventions.
+**Zero-Crossing Prevention (Anti-Jitter):**
+
+A critical edge case in discrete-time integration occurs during the final time step before the robot completely stops. If the applied constant deceleration is large enough, integrating over the full time step $dt$ will cause the velocity to overshoot zero and flip its sign. In the next time step, the controller would apply deceleration in the opposite direction, leading to high-frequency jitter (chattering) around the zero-velocity point.
+
+To prevent this, the controller calculates a tentative next velocity:
+
+$$
+\dot{q}_{next} = \dot{q}(k) + \ddot{q}_{cmd} dt
+$$
+
+If a zero-crossing is detected (i.e., the sign of $\dot{q}_{next}$ is different from $\dot{q}(k)$, or it reaches exactly zero), the controller abandons the standard $dt$ integration. Instead, it calculates the exact fractional time $t_{zero}$ required for the velocity to reach absolute zero:
+
+$$
+t_{zero} = \left| \frac{\dot{q}(k)}{\ddot{q}_{cmd}} \right|
+$$
+
+Since $t_{zero} \le dt$, the integration step is truncated exactly at this fractional time, ensuring the joint smoothly locks at a perfect standstill without overshooting:
+
+$$
+q_{target}(k+1) = q_{target}(k) + \dot{q}(k) t_{zero} + \frac{1}{2} \ddot{q}_{cmd} t_{zero}^2
+$$
+
+$$
+\dot{q}_{target}(k+1) = 0
+$$
+
+$$
+\ddot{q}_{cmd} = 0
+$$
+
+This logic guarantees that the manipulator strictly adheres to maximum mechanical stress tolerances during emergency interventions, while resting perfectly stationary once the kinetic energy has been safely dissipated.
