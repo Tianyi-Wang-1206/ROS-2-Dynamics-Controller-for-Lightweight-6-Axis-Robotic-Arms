@@ -184,7 +184,7 @@ $$
 \ddot{q}_{cmd} = -\text{sgn}(\dot{q}(k)) a_{max}
 $$
 
-Under normal deceleration, the discrete position and velocity targets are updated iteratively during the control loop ($dt=0.001s$):
+Under normal deceleration, the discrete position and velocity targets are updated iteratively during the control loop ($dt = 0.001s$):
 
 $$
 q_{target}(k+1) = q_{target}(k) + \dot{q}(k) dt + \frac{1}{2} \ddot{q}_{cmd} dt^2
