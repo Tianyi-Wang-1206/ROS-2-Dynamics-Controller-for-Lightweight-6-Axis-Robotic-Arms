@@ -228,3 +228,7 @@ I would like to sincerely thank the creators and maintainers of the following op
 ## 📌 Disclaimer
 
 This is a personal, open-source project. I am not affiliated with, sponsored by, or endorsed by any commercial entities mentioned in this repository. All trademarks and registered trademarks are the property of their respective owners. The software is provided "as is", without warranty of any kind.
+
+## 📬 Contact
+
+If you have any questions about this repository, you can raise an issue or contact [![Email](https://img.shields.io/badge/Email-Contact_Me-informational?style=flat&logo=gmail&logoColor=white)](wtianyi947@gmail.com) directly.
