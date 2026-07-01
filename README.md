@@ -231,4 +231,4 @@ This is a personal, open-source project. I am not affiliated with, sponsored by,
 
 ## 📬 Contact
 
-If you have any questions about this repository, you can raise an issue or contact [![Email](https://img.shields.io/badge/Email-Contact_Me-informational?style=flat&logo=gmail&logoColor=white)](wtianyi947@gmail.com) directly.
+If you have any questions about this repository, you can raise an issue or contact [![Email](https://img.shields.io/badge/Email-Contact_Me-informational?style=flat&logo=gmail&logoColor=white)](mailto:wtianyi947@gmail.com) directly.
