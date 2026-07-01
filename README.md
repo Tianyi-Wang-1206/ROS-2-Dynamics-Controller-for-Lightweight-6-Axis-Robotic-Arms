@@ -224,6 +224,6 @@ I would like to sincerely thank the creators and maintainers of the following op
 *   **[Pilz Industrial Motion Planner](https://moveit.picknik.ai/main/doc/how_to_guides/pilz_industrial_motion_planner/pilz_industrial_motion_planner.html)**
 *   **[TRAC-IK](https://traclabs.com/projects/trac-ik/)**
 
-## ⚖️ Disclaimer
+## 📌 Disclaimer
 
 This is a personal, open-source project. I am not affiliated with, sponsored by, or endorsed by any commercial entities mentioned in this repository. All trademarks and registered trademarks are the property of their respective owners. The software is provided "as is", without warranty of any kind.
