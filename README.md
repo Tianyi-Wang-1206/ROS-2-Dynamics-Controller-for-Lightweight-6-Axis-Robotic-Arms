@@ -137,6 +137,8 @@ graph TB
   <img src="media/demo_MoveC.gif" width="1080" alt="Circular Interpolation and Planning"/>
 </p>
 
+*(Note: For MoveL and MoveC, it is recommended to lower the velocity and acceleration scale, to make sure that the trajectory planning doesn't exceed the robot's physical limits; otherwise, trajectory planning may fail.)*
+
 ### 2. Automated System Identification
 *   Executes bounded Fourier excitation trajectories.
 *   Records $q, \dot{q}, \tau$ and utilizes **Least Squares Optimization** to extract exact **Armature, Viscous Friction, and Coulomb Friction** matrices.
@@ -166,13 +168,14 @@ This project is fully containerized using Docker to eliminate OS and dependency 
 
 ### 📋 Prerequisites
 Before starting, ensure your system has the following installed:
-1. [**Docker Engine**](https://docs.docker.com/engine/install/).
-2. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Required for GUI rendering and GPU acceleration.
+1. **Linux Host** (Ubuntu 22.04 recommended).
+2. [**Docker Engine**](https://docs.docker.com/engine/install/).
+3. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Recommended for GUI rendering and GPU acceleration (the script will automatically detect your hardware and choose suitable drives if you are using an Intel/AMD GPU or no GPU).
 
 ### 📂 Step 1: Prepare the Workspace
-Create a workspace folder and place the project files exactly in this structure:
+Create a workspace folder `~/lite6_ws/`; download the repository, extract it and copy the files to the workspace folder like this:
 
-```
+```text
 ~/lite6_ws/
 ├── mujoco-3.9.0/          # MuJoCo binaries
 ├── src/                   # Source code (lite6_bringup, lite6_controllers, etc.)
@@ -185,7 +188,7 @@ Create a workspace folder and place the project files exactly in this structure:
 ### 🐳 Step 2: Start the Docker Environment
 Open a terminal on your host machine, navigate to the workspace, and execute the startup script.
 
-```
+```bash
 cd ~/lite6_ws
 chmod +x ./run_docker.sh
 ./run_docker.sh
@@ -194,7 +197,7 @@ chmod +x ./run_docker.sh
 ### 🏗️ Step 3: Build and Launch (Inside Docker)
 Inside the Docker terminal, build the ROS 2 packages and launch the system:
 
-```
+```bash
 colcon build --symlink-install
 
 source install/setup.bash
@@ -202,7 +205,7 @@ source install/setup.bash
 ros2 launch lite6_bringup system_bringup.launch.py
 ```
 
-*(Note: If you reboot your computer, you can repeat Step 2 and Step 3 to launch the robot again.  In addition, since the `run_docker.sh` script uses a "shared folder" feature, the `src` folder on your computer is directly linked to the inside of Docker. You **do not** need to rebuild the Docker image every time you change the code.).*
+*(Note: If you reboot your computer, you can repeat Step 2 and Step 3 to launch the robot again.  In addition, since the `run_docker.sh` script uses a "shared folder" feature, the `src` folder on your computer is directly linked to the inside of Docker. You **do not** need to rebuild the Docker image every time you change the code.)*
 
 ## 🔮 Future Work
 This framework is actively evolving. Upcoming features include:
@@ -223,4 +226,4 @@ I would like to sincerely thank the creators and maintainers of the following op
 
 ## ⚖️ Disclaimer
 
-This is an independent, open-source project created by a college student. I am not affiliated with, sponsored by, or endorsed by any commercial entities mentioned in this repository. All trademarks and registered trademarks are the property of their respective owners. The software is provided "as is", without warranty of any kind.
+This is a personal, open-source project. I am not affiliated with, sponsored by, or endorsed by any commercial entities mentioned in this repository. All trademarks and registered trademarks are the property of their respective owners. The software is provided "as is", without warranty of any kind.
