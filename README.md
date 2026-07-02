@@ -179,7 +179,7 @@ Create a workspace folder `~/lite6_ws/`; download the repository, extract it and
 ├── src/                   # Source code (lite6_bringup, lite6_controllers, etc.)
 ├── Dockerfile             # Docker configuration
 ├── run_docker.sh          # Container boot script
-├── README.md
+├── README.md              # (Optional) Other descriptive files
 ├── Theory.md
 ├── Theory.pdf
 ├── LICENSE
