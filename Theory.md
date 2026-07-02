@@ -126,7 +126,7 @@ $$
 
 **Error Dynamics Proof:**
 
-If our dynamic model is perfectly accurate ($\hat{M} = M$, etc.), substituting the control law into the robot's equation of motion yields:
+If our dynamic model is highly accurate ($\hat{M} = M$, etc.), substituting the control law into the robot's equation of motion yields:
 
 $$
 (M(q) + I_a) (\ddot{q}_{target} - \ddot{q} + K_p e + K_v \dot{e}) = 0
@@ -142,7 +142,7 @@ By choosing strictly positive diagonal gain matrices $K_p$ and $K_v$, the error 
 
 ## 4. System Identification (Fourier Series & Least Squares)
 
-Parameters such as the mass, inertia, and center of mass of the robot body are known at the time of manufacture; however, parameters like friction and rotor inertia are difficult to measure precisely, necessitating system identification to estimate them. To find the parameters $I_a, F_v, F_c$, we execute a persistent excitation trajectory modeled by a finite Fourier series ($N_f = 7$, base frequency $w = 2\pi f_0$):
+Parameters such as the mass, inertia, and center of mass of the robot body are known at the time of manufacture; however, parameters like friction and rotor inertia are difficult to measure precisely, necessitating system identification to estimate them. To find the parameters $I_a, F_v, F_c$, we execute a continuous excitation trajectory modeled by a finite Fourier series ($N_f = 7$, base frequency $w = 2\pi f_0$):
 
 $$
 q_i(t) = \sum_{l=1}^{N_f} \left[ \frac{a_{i,l}}{w l} \sin(w l t) - \frac{b_{i,l}}{w l} \cos(w l t) + \frac{b_{i,l}}{w l} \right]
@@ -210,7 +210,7 @@ $$
 t_{zero} = \left| \frac{\dot{q}(k)}{\ddot{q}_{cmd}} \right|
 $$
 
-Since $t_{zero} \le dt$, the integration step is truncated exactly at this fractional time, ensuring the joint smoothly locks at a perfect standstill without overshooting:
+Since $t_{zero} \le dt$, the integration step is truncated exactly at this fractional time, ensuring the joint smoothly locks at a complete standstill without overshooting:
 
 $$
 q_{target}(k+1) = q_{target}(k) + \dot{q}(k) t_{zero} + \frac{1}{2} \ddot{q}_{cmd} t_{zero}^2
@@ -224,4 +224,4 @@ $$
 \ddot{q}_{cmd} = 0
 $$
 
-This logic guarantees that the manipulator strictly adheres to maximum mechanical stress tolerances during emergency interventions, while resting perfectly stationary once the kinetic energy has been safely dissipated.
+This logic guarantees that the manipulator strictly adheres to maximum mechanical stress tolerances during emergency interventions, while resting completely stationary once the kinetic energy has been safely dissipated.
