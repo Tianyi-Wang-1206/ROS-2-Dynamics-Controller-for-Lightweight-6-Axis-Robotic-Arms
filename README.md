@@ -82,7 +82,7 @@ graph TB
     end
 
     %% Subgraph: Shadow Robot Twin (Visualization Helper)
-    subgraph Sub_Shadow [Shadow Robot Twin — ~200Hz]
+    subgraph Sub_Display [Robot Graphical Display — ~200Hz]
         Tracker[Shadow Tracker Node]:::Util
         ShadowRSP[Shadow Robot State Publisher]:::Util
         RViz[RViz2 Visualization]:::Util
@@ -113,7 +113,7 @@ graph TB
     style Sub_MoveIt fill:#ebf5fb,stroke:#a9cce3,stroke-width:2px;
     style Sub_R2C fill:#f5eef8,stroke:#d7bde2,stroke-width:2px;
     style Sub_MuJoCo fill:#eaf2f8,stroke:#a9dfbf,stroke-width:2px;
-    style Sub_Shadow fill:#f2f4f4,stroke:#ccd1d1,stroke-width:2px;
+    style Sub_Display fill:#f2f4f4,stroke:#ccd1d1,stroke-width:2px;
 ```
 
 ## 🎥 Core Features & Demonstrations
