@@ -1466,7 +1466,7 @@ class PyQtHMI(QMainWindow):
 
 def main(args=None):
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1.0"
-    os.environ["QT_SCALE_FACTOR"] = "1.25"
+    os.environ["QT_SCALE_FACTOR"] = "1.0"    # This factor changes the total size of the GUI window. The fonts inside it will be changed automatically.
     rclpy.init(args=args)
 
     # 1. Instantiate the ROS 2 executor inside QThread Worker
