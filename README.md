@@ -168,7 +168,7 @@ This project is fully containerized using Docker to eliminate OS and dependency 
 Before starting, ensure your system has the following installed:
 1. **Linux Host** (Ubuntu 22.04 recommended).
 2. [**Docker Engine**](https://docs.docker.com/engine/install/).
-3. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Recommended for GUI rendering and GPU acceleration (the script will automatically detect your hardware and choose suitable drives if you are using an Intel/AMD GPU or no GPU).
+3. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Recommended for GUI rendering and GPU acceleration (the script will automatically detect your hardware and choose suitable drivers if you are using an Intel/AMD GPU or no GPU).
 
 ### 📂 Step 1: Prepare the Workspace
 Create a workspace folder `~/lite6_ws/`; download the repository, extract it and copy the files to the workspace folder like this:
