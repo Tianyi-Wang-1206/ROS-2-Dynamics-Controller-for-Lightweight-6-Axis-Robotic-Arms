@@ -166,7 +166,7 @@ This project is fully containerized using Docker to eliminate OS and dependency 
 
 ### 📋 Prerequisites
 Before starting, ensure your system has the following installed:
-1. **Linux Host** (Ubuntu 22.04 recommended).
+1. **Linux Host** (Ubuntu 22.04 or higher).
 2. [**Docker Engine**](https://docs.docker.com/engine/install/).
 3. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Recommended for GUI rendering and GPU acceleration (the script will automatically detect your hardware and choose suitable drivers if you are using an Intel/AMD GPU or no GPU).
 
