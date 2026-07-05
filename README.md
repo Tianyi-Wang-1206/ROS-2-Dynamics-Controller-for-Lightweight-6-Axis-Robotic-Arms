@@ -162,52 +162,65 @@ graph TB
 
 ## 🚀 Quick Start & Reproduction Guide
 
-This project is fully containerized using Docker to eliminate OS and dependency conflicts. You do not need to install ROS 2 or MuJoCo on your host machine.
+You can run this project using either a containerized Docker environment (recommended for avoiding dependency conflicts) or natively on Ubuntu 22.04.
 
 ### 📋 Prerequisites
-Before starting, ensure your system has the following installed:
-1. **Linux Host** (Ubuntu 22.04 or higher).
-2. [**Docker Engine**](https://docs.docker.com/engine/install/).
-3. [**NVIDIA Container Toolkit**](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html): Recommended for GUI rendering and GPU acceleration (the script will automatically detect your hardware and choose suitable drivers if you are using an Intel/AMD GPU or no GPU).
 
-### 📂 Step 1: Prepare the Workspace
-Create a workspace folder `~/lite6_ws/`; download the repository, extract it and copy the files to the workspace folder like this:
-
+Download the repository and organize your workspace as follows:
 ```text
 ~/lite6_ws/
-├── mujoco-3.9.0/          # MuJoCo binaries
+├── mujoco-3.9.0/          # MuJoCo binaries (provided in this repository)
 ├── src/                   # Source code (lite6_bringup, lite6_controllers, etc.)
 ├── Dockerfile             # Docker configuration
 ├── run_docker.sh          # Container boot script
-├── README.md              # (Optional) Other descriptive files
-├── Theory.md
-├── Theory.pdf
-├── LICENSE
-├── .gitattributes
-└── .gitignore
+└── README.md
 ```
+### 🐳 Option A: Docker Deployment
+This method isolates the environment and requires no local ROS 2 installation. Ensure you have a Linux host (Ubuntu 22.04 or higher), [Docker](https://docs.docker.com/engine/install/) and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (recommended for GUI rendering and GPU acceleration).
 
-### 🐳 Step 2: Start the Docker Environment
-Open a terminal on your host machine, navigate to the workspace, and execute the startup script.
-
+**1. Start the Docker Environment:**
 ```bash
 cd ~/lite6_ws
 chmod +x ./run_docker.sh
 ./run_docker.sh
 ```
+*(Note: The script automatically detects your GPU and chooses suitable drivers if you are using an Intel/AMD GPU or no GPU. It also automatically mounts the `src` folder, so you do not need to rebuild the image when modifying code).*
 
-### 🏗️ Step 3: Build and Launch (Inside Docker)
-Inside the Docker terminal, build the ROS 2 packages and launch the system:
-
+**2. Build and Launch (Inside Docker):**
 ```bash
 colcon build --symlink-install
-
 source install/setup.bash
-
 ros2 launch lite6_bringup system_bringup.launch.py
 ```
+### 💻 Option B: Native Deployment (Ubuntu 22.04)
+If you prefer running natively, ensure you have **ROS2 Humble** installed on your host machine.
 
-*(Note: If you reboot your computer, you can repeat Step 2 and Step 3 to launch the robot again.  In addition, since the `run_docker.sh` script uses a "shared folder" feature, the `src` folder on your computer is directly linked to the inside of Docker. You **do not** need to rebuild the Docker image every time you change the code.)*
+**1. Setup MuJoCo Binaries:**
+Move the provided MuJoCo binaries to your home directory and link them to your `.bashrc`.
+```bash
+mkdir -p ~/.mujoco
+cp -r ~/lite6_ws/mujoco-3.9.0 ~/.mujoco/
+
+# Add MuJoCo paths to your bash profile
+echo 'export MUJOCO_DIR=~/.mujoco/mujoco-3.9.0' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MUJOCO_DIR/lib' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**2. Install ROS 2 Dependencies (`rosdep`):**
+Use `rosdep` to automatically install all required packages (Pinocchio, MoveIt2, etc.).
+```bash
+cd ~/lite6_ws
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+**3. Compile and Launch:**
+```bash
+colcon build --symlink-install
+source install/setup.bash
+ros2 launch lite6_bringup system_bringup.launch.py
+```
 
 ## 🔮 Future Work
 This framework is actively evolving. Upcoming features include:
