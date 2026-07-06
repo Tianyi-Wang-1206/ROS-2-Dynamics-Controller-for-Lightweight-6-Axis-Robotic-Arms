@@ -111,6 +111,19 @@ controller_interface::CallbackReturn Lite6CTCController::on_configure(const rclc
     RCLCPP_ERROR(get_node()->get_logger(), "Failed to load URDF");
     return controller_interface::CallbackReturn::ERROR;
   }
+
+  // Initialize the standard ROS publisher
+  shadow_pub_ = get_node()->create_publisher<sensor_msgs::msg::JointState>("/shadow/joint_states", rclcpp::SystemDefaultsQoS());
+  
+  // Wrap it in the RealtimePublisher
+  rt_shadow_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::msg::JointState>>(shadow_pub_);
+  
+  // Pre-allocate the memory for the message to avoid dynamic memory allocation in the RT loop
+  rt_shadow_pub_->msg_.name = joint_names_;
+  rt_shadow_pub_->msg_.position.resize(n, 0.0);
+  rt_shadow_pub_->msg_.velocity.resize(n, 0.0);
+  rt_shadow_pub_->msg_.effort.resize(n, 0.0);
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -138,7 +151,7 @@ controller_interface::CallbackReturn Lite6CTCController::on_activate(const rclcp
 controller_interface::CallbackReturn Lite6CTCController::on_deactivate(const rclcpp_lifecycle::State &) { return controller_interface::CallbackReturn::SUCCESS; }
 
 controller_interface::return_type Lite6CTCController::update_and_write_commands(
-  const rclcpp::Time &, const rclcpp::Duration & period)
+  const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   double dt = period.seconds();
   if (dt <= 0.0) return controller_interface::return_type::OK;
@@ -233,6 +246,24 @@ controller_interface::return_type Lite6CTCController::update_and_write_commands(
       command_interfaces_[i].set_value(tau_cmd_[i]);
   }
   a_d_prev_ = a_d_; 
+
+  // 6. Publish at 200Hz (1000Hz / 5) to match the Joint State Broadcaster
+  publish_counter_++;
+  if (publish_counter_ >= publish_rate_divider_) {
+      publish_counter_ = 0;
+      
+      // trylock() ensures we never block the 1000Hz loop.
+      if (rt_shadow_pub_->trylock()) {
+          rt_shadow_pub_->msg_.header.stamp = time.operator builtin_interfaces::msg::Time();
+          
+          for (size_t i = 0; i < n; ++i) {
+              rt_shadow_pub_->msg_.position[i] = q_target_[i];
+              // rt_shadow_pub_->msg_.velocity[i] = dq_target_[i];    // Optional: Uncomment if you want to publish target velocities
+              // rt_shadow_pub_->msg_.effort[i] = tau_cmd_[i];    // Optional: Uncomment if you want to publish commanded efforts
+          }
+          rt_shadow_pub_->unlockAndPublish();
+      }
+  }
 
   return controller_interface::return_type::OK;
 }

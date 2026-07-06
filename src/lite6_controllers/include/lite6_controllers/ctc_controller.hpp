@@ -7,6 +7,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "realtime_tools/realtime_buffer.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "realtime_tools/realtime_publisher.hpp"
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -101,6 +103,13 @@ private:
   
   rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr cmd_sub_;
   realtime_tools::RealtimeBuffer<int32_t> cmd_buffer_;
+
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr shadow_pub_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::msg::JointState>> rt_shadow_pub_;
+
+  // Downsampler to match the 200Hz JSB rate without flooding the network
+  int publish_rate_divider_ = 5; 
+  int publish_counter_ = 0;
 };
 
 }  // namespace lite6_controllers

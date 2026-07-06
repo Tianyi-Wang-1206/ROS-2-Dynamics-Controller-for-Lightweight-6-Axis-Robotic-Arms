@@ -25,7 +25,6 @@ setup(
     entry_points={
         'console_scripts': [
             'gui_main = lite6_hmi.gui_main:main',
-            'shadow_tracker = lite6_hmi.shadow_tracker:main',
         ],
     },
 )

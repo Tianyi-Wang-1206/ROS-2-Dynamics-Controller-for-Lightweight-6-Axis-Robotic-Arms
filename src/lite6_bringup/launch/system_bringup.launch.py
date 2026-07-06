@@ -79,10 +79,7 @@ def generate_launch_description():
     else:
         rviz_node = Node(package='rviz2', executable='rviz2', name='rviz2', output='screen', arguments=['-d', rviz_config_file])
 
-    # 5. Shadow Tracker (Python Script)
-    shadow_tracker_node = Node(package='lite6_hmi', executable='shadow_tracker', output='screen')
-
-    # 6. Shadow RSP (using isolated topic and modified URDF)
+    # 5. Shadow RSP (using isolated topic and modified URDF)
     shadow_rsp_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -97,7 +94,7 @@ def generate_launch_description():
         ]
     )
 
-    # 7. Static TF to anchor the shadow robot
+    # 6. Static TF to anchor the shadow robot
     shadow_tf_node = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -105,12 +102,12 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 8. HMI
+    # 7. HMI
     hmi_node = TimerAction(period=4.0, actions=[Node(package='lite6_hmi', executable='gui_main', output='screen')])
 
     return LaunchDescription([
         control_node, rsp_node, jsb_spawner, ctc_spawner, delay_jtc_after_ctc,
         move_group_launch, rviz_node,
-        shadow_tracker_node, shadow_rsp_node, shadow_tf_node,
+        shadow_rsp_node, shadow_tf_node,
         hmi_node
     ])
