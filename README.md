@@ -222,8 +222,9 @@ ros2 launch lite6_bringup system_bringup.launch.py
 
 ## 🔮 Future Work
 This framework is actively evolving. Upcoming features include:
-- **End-Effector Integration:** Adding URDF and controller support for parallel jaw grippers.
-- **Impedance / Admittance Control:** Transitioning from strict position tracking to compliant Cartesian control for physical human-robot interaction and assembly tasks.
+- **Analytical Inverse Kinematics via Symbolic Computation:** Transitioning from the current numerical IK solver to a mathematically exact, closed-form analytical IK solution. Derived using symbolic computation software, this will reduce IK computation time from milliseconds to nanoseconds, guarantee thread safety, and provide all possible joint configurations instantly.
+- **Algebraic Singularity Analysis & Avoidance:** Leveraging symbolic algebraic derivation to explicitly solve the roots of the Jacobian determinant ($\det(J(q)) = 0$). This will map the exact analytical boundaries of the manipulator's kinematic singularities.
+- **End-Effector Integration:** Adding URDF and controller support for parallel jaw grippers to facilitate pick-and-place tasks.
 
 ## 🙏 Acknowledgements
 
