@@ -1,7 +1,7 @@
 <mujoco model="ufactory_lite6">
   <compiler angle="radian" meshdir="assets" autolimits="true"/>
 
-  <option integrator="implicit" timestep="0.001"/>
+  <option integrator="implicit" timestep="0.0001"/>
 
   <default>
     <default class="lite6">

@@ -122,9 +122,10 @@ hardware_interface::return_type Lite6MujocoSystem::write(
     m_data->ctrl[ctrl_indices_[i]] = hw_commands_effort_[i];
   }
 
-  // 2. Step the physics engine
-  mj_step(m_model, m_data);
-
+  // 2. Step the physics engine (10000Hz) 
+  for (int step = 0; step < 10; ++step) {
+    mj_step(m_model, m_data);
+  }
   return hardware_interface::return_type::OK;
 }
 
