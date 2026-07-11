@@ -117,14 +117,28 @@ hardware_interface::return_type Lite6MujocoSystem::read(
 hardware_interface::return_type Lite6MujocoSystem::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  // 1. Write the effort commands to the MuJoCo actuators
-  for (size_t i = 0; i < info_.joints.size(); ++i) {
-    m_data->ctrl[ctrl_indices_[i]] = hw_commands_effort_[i];
+  // Check if simulation has started (i.e., any non-zero command has been sent)
+  bool sim_started_ = false;
+  // If simulation is not started, we don't step the physics engine
+  if (!sim_started_) {
+    for (size_t i = 0; i < info_.joints.size(); ++i) {
+      if (std::abs(hw_commands_effort_[i]) > 0.01) {
+        sim_started_ = true;
+        break;
+      }
+    }
   }
 
-  // 2. Step the physics engine (10000Hz) 
-  for (int step = 0; step < 10; ++step) {
-    mj_step(m_model, m_data);
+  if (sim_started_) {
+    // Write the effort commands to the MuJoCo actuators
+    for (size_t i = 0; i < info_.joints.size(); ++i) {
+      m_data->ctrl[ctrl_indices_[i]] = hw_commands_effort_[i];
+    }
+
+    // Step the physics engine (10000Hz) 
+    for (int step = 0; step < 10; ++step) {
+      mj_step(m_model, m_data);
+    }
   }
   return hardware_interface::return_type::OK;
 }
