@@ -113,7 +113,7 @@ class ROS2Worker(QThread):
             self.sysid_calc = None
 
         # Subscribers and Timers
-        self.node.create_subscription(JointState, '/joint_states', self.joint_cb, 100)
+        self.node.create_subscription(JointState, '/joint_states', self.joint_cb, 200)
         self.node.create_timer(1.0, self.publish_ground_plane)
         
         # Delayed system initialization
