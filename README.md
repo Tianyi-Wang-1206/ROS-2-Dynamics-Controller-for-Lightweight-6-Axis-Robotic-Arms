@@ -224,8 +224,10 @@ ros2 launch lite6_bringup system_bringup.launch.py
 ## 🔮 Future Work
 This framework is actively evolving. Upcoming features include:
 - **Analytical Inverse Kinematics via Symbolic Computation:** Transitioning from the current numerical IK solver to a mathematically exact, closed-form analytical IK solution. Derived using symbolic computation software, this will reduce IK computation time from milliseconds to nanoseconds, guarantee thread safety, and provide all possible joint configurations instantly.
-- **Algebraic Singularity Analysis & Avoidance:** Leveraging symbolic algebraic derivation to explicitly solve the roots of the Jacobian determinant ($\det(J(q)) = 0$). This will map the exact analytical boundaries of the manipulator's kinematic singularities.
-- **End-Effector Integration:** Adding URDF and controller support for parallel jaw grippers to facilitate pick-and-place tasks.
+- **Deterministic Trajectory Planning:** Instead of using sampling-based trajectory planners, we combine analytical IK solutions with time parameterization to achieve deterministic trajectory planning for MoveJ, MoveP, MoveL, and MoveC commands.
+- **Collision Detection:** When calculating IK and planning trajectories, the collision mesh of the robot model is computed to prevent the robot from colliding with itself or the worktable.
+
+*(Note: These new features have been implemented; please refer to [link](https://github.com/Tianyi-Wang-1206/Deterministic-Motion-Planning-and-Dynamics-Control-Framework-for-Lightweight-6-Axis-Robotic-Arms))*
 
 ## 🙏 Acknowledgements
 
