@@ -27,6 +27,7 @@ For detailed mathematical derivations, please refer to [Theory.pdf](Theory.pdf).
 4. [Future Work](#-future-work)
 5. [Acknowledgements](#-acknowledgements)
 6. [Disclaimer](#-disclaimer)
+7. [Contact](#-contact)
 
 
 ## 🧠 System Architecture
